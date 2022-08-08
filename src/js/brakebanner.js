@@ -49,7 +49,7 @@ class BrakeBanner{
 	}
 
 	addActions () {
-		let brake_lever = this.brakeContainer.getChildAt(2)
+		let brake_lever = this.brakeContainer.getChildAt(0)
 		let {start, parse} = this.particleActions()
 		start()
 		this.actionButtonContainer.on("mousedown", () => {
@@ -57,7 +57,6 @@ class BrakeBanner{
 			// let rotation = Math.PI/180*-30
 			gsap.to(brake_lever, {duration:.6,rotation:Math.PI/180*-30})
 
-			// gsap.to(brake_lever.scale, {duration:1,x:1.1,y:1.1,repeat: -1})
 			parse()
 		})
 		this.actionButtonContainer.on("mouseup", () => {
@@ -76,8 +75,11 @@ class BrakeBanner{
 
 				item.pr.y += speed
 
-				item.pr.scale.y = 10
-				item.pr.scale.x = 0.1
+				if(speed >= 20) {
+
+					item.pr.scale.y = 40
+					item.pr.scale.x = 0.03
+				}
 
 				if(item.pr.y >= window.innerHeight) {
 					item.pr.y = 0
@@ -101,7 +103,7 @@ class BrakeBanner{
 				item.pr.scale.x = 1
 				item.pr.y = item.sy + 80
 				// console.log('item.sy', item.sy)
-				gsap.to(item.pr, {duration: .2, y: item.sy,ease: "inOut"})
+				gsap.to(item.pr, {duration: .2, y: item.sy,ease: "elastic.out"})
 			}
 			gsap.ticker.remove(loop)
 
@@ -158,9 +160,9 @@ class BrakeBanner{
 		brake_lever.x = 722
 		brake_lever.y = 900
 
+		brakeContainer.addChild(brake_lever)
 		brakeContainer.addChild(brake_bike)
 		brakeContainer.addChild(brake_handlerbar)
-		brakeContainer.addChild(brake_lever)
 		
 		let resize = () => {
 			brakeContainer.x = window.innerWidth  - brakeContainer.width
