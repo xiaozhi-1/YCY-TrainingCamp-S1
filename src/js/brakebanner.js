@@ -51,6 +51,7 @@ class BrakeBanner{
 	addActions () {
 		let brake_lever = this.brakeContainer.getChildAt(0)
 		let {start, parse} = this.particleActions()
+		let {down:brakeDown, parse:brakeParse} = this.brakeActions()
 		start()
 		this.actionButtonContainer.on("mousedown", () => {
 			// brake_lever.rotation = Math.PI/180*-30
@@ -58,11 +59,32 @@ class BrakeBanner{
 			gsap.to(brake_lever, {duration:.6,rotation:Math.PI/180*-30})
 
 			parse()
+			brakeParse()
 		})
 		this.actionButtonContainer.on("mouseup", () => {
 			gsap.to(brake_lever, {duration:.6,rotation:0})
 			start()
+			brakeDown()
 		})
+	}
+
+	brakeActions () {
+		let by = this.brakeContainer.y
+		let parse = () => {
+			// 按下的时候车下降
+			// this.brakeContainer.y += 10
+			by += 40
+			gsap.to(this.brakeContainer, {duration:.3,y: by,ease: 'out'})
+		}
+
+
+		let down = () => {
+			// this.brakeContainer.y -= 10
+			by -= 40
+			gsap.to(this.brakeContainer, {duration:.6,y: by,ease: 'in.out'})
+		}
+
+		return {parse, down}
 	}
 
 	particleActions () {
