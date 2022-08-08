@@ -101,7 +101,7 @@ class BrakeBanner{
 				item.pr.scale.x = 1
 				item.pr.y = item.sy + 80
 				// console.log('item.sy', item.sy)
-				gsap.to(item.pr, {duration: .6, y: item.sy,ease: "back.inOut(6)"})
+				gsap.to(item.pr, {duration: .2, y: item.sy,ease: "inOut"})
 			}
 			gsap.ticker.remove(loop)
 
