@@ -24,25 +24,89 @@ class BrakeBanner{
 		this.loader.load()
 
 		this.loader.onComplete.add(() => {
-			console.log('加载成功')
 			this.renderResource()
 		})
 	}
 	renderResource () {
-		this.actionButton = this.createActionButton()
-		this.actionButton.x = this.actionButton.y = 400
+		this.actionButtonContainer = this.createActionButton()
+		this.actionButtonContainer.x = this.actionButtonContainer.y = 400
 
-		this.actionButton.interactive = true
-		this.actionButton.cursor = 'pointer'
+		this.actionButtonContainer.interactive = true
+		this.actionButtonContainer.cursor = 'pointer'
 
-		let brake = this.createBrake()
+		this.brakeContainer = this.createBrake()
 
-		let particles = this.createParticles()
+		let {particlesContainer,particles} = this.createParticles()
+		this.particlesContainer = particlesContainer
+		this.particles = particles
 
-		this.app.stage.addChild(particles)
-		this.app.stage.addChild(brake)
-		this.app.stage.addChild(this.actionButton)
+		this.addActions()
 
+		this.app.stage.addChild(this.particlesContainer)
+		this.app.stage.addChild(this.brakeContainer)
+		this.app.stage.addChild(this.actionButtonContainer)
+
+	}
+
+	addActions () {
+		let brake_lever = this.brakeContainer.getChildAt(2)
+		let {start, parse} = this.particleActions()
+		start()
+		this.actionButtonContainer.on("mousedown", () => {
+			// brake_lever.rotation = Math.PI/180*-30
+			// let rotation = Math.PI/180*-30
+			gsap.to(brake_lever, {duration:.6,rotation:Math.PI/180*-30})
+
+			// gsap.to(brake_lever.scale, {duration:1,x:1.1,y:1.1,repeat: -1})
+			parse()
+		})
+		this.actionButtonContainer.on("mouseup", () => {
+			gsap.to(brake_lever, {duration:.6,rotation:0})
+			start()
+		})
+	}
+
+	particleActions () {
+		let speed = 0
+		let loop = () => {
+			speed += 0.5
+			speed = Math.min(speed,20)
+			for(let i = 0; i < this.particles.length; i++) {
+				let item = this.particles[i]
+
+				item.pr.y += speed
+
+				item.pr.scale.y = 10
+				item.pr.scale.x = 0.1
+
+				if(item.pr.y >= window.innerHeight) {
+					item.pr.y = 0
+				}
+			}
+		}
+
+
+
+		function start () {
+			speed = 0
+			gsap.ticker.add(loop)
+		}
+		let parse = () => {
+			// 回弹效果
+
+			for(let i = 0; i < this.particles.length; i++) {
+				let item = this.particles[i]
+				
+				item.pr.scale.y = 1
+				item.pr.scale.x = 1
+				item.pr.y = item.sy + 80
+				// console.log('item.sy', item.sy)
+				gsap.to(item.pr, {duration: .6, y: item.sy,ease: "back.inOut(6)"})
+			}
+			gsap.ticker.remove(loop)
+
+		}
+		return {start,parse}
 	}
 
 	createParticles () {
@@ -72,39 +136,12 @@ class BrakeBanner{
 			}
 			pr.x = pItem.sx
 			pr.y = pItem.sy
+			// console.log('pItem.sy', pItem.sy)
 			particles.push(pItem)
 			particlesContainer.addChild(pr)
 		}
-		let speed = 0
-		function loop () {
-			speed += 0.5
-			speed = Math.min(speed,20)
-			for(let i = 0; i < particles.length; i++) {
-				let item = particles[i]
-
-				item.pr.y += speed
-
-				item.pr.scale.y = 10
-				item.pr.scale.x = 0.1
-
-				if(item.pr.y >= window.innerHeight) {
-					item.pr.y = 0
-				}
-			}
-		}
-
-
-
-		function start () {
-			speed = 0
-			gsap.ticker.add(loop)
-		}
-		function parse () {
-			gsap.ticker.remove(loop)
-		}
-
-		start()
-		return particlesContainer
+		
+		return {particlesContainer,particles}
 	}
 
 	createBrake () {
@@ -120,17 +157,6 @@ class BrakeBanner{
 		brake_lever.pivot.x = brake_lever.pivot.y = 455
 		brake_lever.x = 722
 		brake_lever.y = 900
-		this.actionButton.on("mousedown", () => {
-			// brake_lever.rotation = Math.PI/180*-30
-			// let rotation = Math.PI/180*-30
-			gsap.to(brake_lever, {duration:.6,rotation:Math.PI/180*-30})
-
-			// gsap.to(brake_lever.scale, {duration:1,x:1.1,y:1.1,repeat: -1})
-		})
-		this.actionButton.on("mouseup", () => {
-			gsap.to(brake_lever, {duration:.6,rotation:0})
-			
-		})
 
 		brakeContainer.addChild(brake_bike)
 		brakeContainer.addChild(brake_handlerbar)
